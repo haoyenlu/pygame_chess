@@ -1,4 +1,4 @@
-# pygame_chess
+# Pygame Chess
 
 ## Install Pygame
 pip install -u pygame
