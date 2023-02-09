@@ -2,6 +2,7 @@ import pygame
 import board
 import piece
 import engine
+import color
 
 # Pawn - p
 # Horse - h
@@ -27,7 +28,10 @@ Initial_Board_Position = [['bl_r','bl_h','bl_b','bl_q','bl_k','bl_b','bl_h','bl_
 class Chess:
     def __init__(self):
         self.highlight = False
+        self.promoting = False
+        self.promoting_pawn = None
         self.pieces = []
+        self.promotion_pieces = []
         self.board = None
         self.outside_board = None
         self.turn = "white"
@@ -41,122 +45,82 @@ class Chess:
     def instantiate_outside_board(self,origin_x = 10,origin_y = 10,block_size=50,block_row=5,block_col=5,color = (255,255,255)):
         self.outside_board = board.OutsiedBoard(origin_x,origin_y,block_size,block_row,block_col,color)
 
-    def instantiate_pieces(self,block_size = 30):
-        # Pawn
-        for i in range(8):
-            self.pieces.append(piece.Pawn(block_size,"white"))
-            self.pieces.append(piece.Pawn(block_size,"black"))
 
-
-        # Horse
-        for i in range(2):
-            self.pieces.append(piece.Horse(block_size,"white"))
-            self.pieces.append(piece.Horse(block_size,"black"))
-
-        # Bishops
-        for i in range(2):
-            self.pieces.append(piece.Bishop(block_size,"white"))
-            self.pieces.append(piece.Bishop(block_size,"black"))
-
-        # Rook
-        for i in range(2):
-            self.pieces.append(piece.Rook(block_size,"white"))
-            self.pieces.append(piece.Rook(block_size,"black"))
-
-        # Queen
-        self.pieces.append(piece.Queen(block_size,"white"))
-        self.pieces.append(piece.Queen(block_size,"black"))
-
-        # King
-        self.pieces.append(piece.King(block_size,"white"))
-        self.pieces.append(piece.King(block_size,"black"))
-
-
-
-    
-    def initialize_pieces_position(self):
+    def initialize_pieces_position(self,block_size):
 
         # Board position
         self.board.board_pieces = Initial_Board_Position
 
         # Pieces position
-        for piece in self.pieces:
-            if piece.name == "pawn" and piece.color == "white" and piece.is_placed == False: # white pawn
-                position = self.board.find_unoccupied_piece_square("w_p")
-                piece.move_to(self.board.board_position[position[0]][position[1]])
-                piece.set_placed(True)
+        for i in range(8):
+            for j in range(8):
+                if self.board.board_pieces[i][j] == "w_p": # white pawn
+                    self.pieces.append(piece.Pawn(block_size,"white",(self.board.board_position[i][j])))
 
-            elif piece.name == "pawn" and piece.color == "black" and piece.is_placed == False: # black pawn
-                position = self.board.find_unoccupied_piece_square("bl_p")
-                piece.move_to(self.board.board_position[position[0]][position[1]])
-                piece.set_placed(True)
+                elif self.board.board_pieces[i][j] == "bl_p": # black pawn
+                    self.pieces.append(piece.Pawn(block_size,"black",(self.board.board_position[i][j])))
 
-            elif piece.name == "horse" and piece.color == "white" and piece.is_placed == False: # white horse
-                position = self.board.find_unoccupied_piece_square("w_h")
-                piece.move_to(self.board.board_position[position[0]][position[1]])
-                piece.set_placed(True)
+                elif self.board.board_pieces[i][j] == "w_h": # white horse
+                    self.pieces.append(piece.Horse(block_size,"white",(self.board.board_position[i][j])))
 
-            elif piece.name == "horse" and piece.color == "black" and piece.is_placed == False: # black horse
-                position = self.board.find_unoccupied_piece_square("bl_h")
-                piece.move_to(self.board.board_position[position[0]][position[1]])
-                piece.set_placed(True)
+                elif self.board.board_pieces[i][j] == "bl_h": # black horse
+                    self.pieces.append(piece.Horse(block_size,"black",(self.board.board_position[i][j])))
 
-            elif piece.name == "bishop" and piece.color == "white" and piece.is_placed == False: # white bishop
-                position = self.board.find_unoccupied_piece_square("w_b")
-                piece.move_to(self.board.board_position[position[0]][position[1]])
-                piece.set_placed(True)
+                elif self.board.board_pieces[i][j] == "w_b": # white bishop
+                    self.pieces.append(piece.Bishop(block_size,"white",(self.board.board_position[i][j])))
 
-            elif piece.name == "bishop" and piece.color == "black" and piece.is_placed == False: # black bishop
-                position = self.board.find_unoccupied_piece_square("bl_b")
-                piece.move_to(self.board.board_position[position[0]][position[1]])
-                piece.set_placed(True)
+                elif self.board.board_pieces[i][j] == "bl_b": # black bishop
+                    self.pieces.append(piece.Bishop(block_size,"black",(self.board.board_position[i][j])))
 
-            elif piece.name == "rook" and piece.color == "white" and piece.is_placed == False: # white rook
-                position = self.board.find_unoccupied_piece_square("w_r")
-                piece.move_to(self.board.board_position[position[0]][position[1]])
-                piece.set_placed(True)
+                elif self.board.board_pieces[i][j] == "w_r": # white rook
+                    self.pieces.append(piece.Rook(block_size,"white",(self.board.board_position[i][j])))
 
-            elif piece.name == "rook" and piece.color == "black" and piece.is_placed == False: # black bishop
-                position = self.board.find_unoccupied_piece_square("bl_r")
-                piece.move_to(self.board.board_position[position[0]][position[1]])
-                piece.set_placed(True)
+                elif self.board.board_pieces[i][j] == "bl_r": # black rook
+                    self.pieces.append(piece.Rook(block_size,"black",(self.board.board_position[i][j])))
 
-            elif piece.name == "queen" and piece.color == "white" and piece.is_placed == False: # white queen
-                position = self.board.find_unoccupied_piece_square("w_q")
-                piece.move_to(self.board.board_position[position[0]][position[1]])
-                piece.set_placed(True)
+                elif self.board.board_pieces[i][j] == "w_q": # white queen
+                    self.pieces.append(piece.Queen(block_size,"white",(self.board.board_position[i][j])))
 
-            elif piece.name == "queen" and piece.color == "black" and piece.is_placed == False: # black queen
-                position = self.board.find_unoccupied_piece_square("bl_q")
-                piece.move_to(self.board.board_position[position[0]][position[1]])
-                piece.set_placed(True)
-            
-            elif piece.name == "king" and piece.color == "white" and piece.is_placed == False: # white king
-                position = self.board.find_unoccupied_piece_square("w_k")
-                piece.move_to(self.board.board_position[position[0]][position[1]])
-                piece.set_placed(True)
+                elif self.board.board_pieces[i][j] == "bl_q": # black queen
+                    self.pieces.append(piece.Queen(block_size,"black",(self.board.board_position[i][j])))
+                
+                elif self.board.board_pieces[i][j] == "w_k": # white king
+                    self.pieces.append(piece.King(block_size,"white",(self.board.board_position[i][j])))
 
-            elif piece.name == "king" and piece.color == "black" and piece.is_placed == False: # black king
-                position = self.board.find_unoccupied_piece_square("bl_k")
-                piece.move_to(self.board.board_position[position[0]][position[1]])
-                piece.set_placed(True)
+                elif self.board.board_pieces[i][j] == "bl_k": # black king
+                    self.pieces.append(piece.King(block_size,"black",(self.board.board_position[i][j])))
 
     def move_piece(self,piece,prev_position,new_position): # Move pieces
         # check if move is legal
         if piece.is_placed == True:
-            if self.check_if_move_legal(piece,prev_position,new_position) and self.is_turn(piece): # check if there is another piece on the square
-                if not self.check_if_squared_occupied(new_position): # check if there is another piece on the square
+            if self.check_if_move_legal(piece,prev_position,new_position) and self.is_turn(piece): 
+                # check if there is another piece on the square
+                if not self.check_if_squared_occupied(new_position):
                     self.ordinary_move(piece,prev_position,new_position)
-                    if piece.name == "king" and abs(new_position[1] - prev_position[1]) == 2: # castle
+                    # castle
+                    if piece.name == "king" and abs(new_position[1] - prev_position[1]) == 2: 
                         self.castle(piece,new_position)
-
+                    
+                    # promotion
+                    if piece.name == 'pawn' and piece.color == 'white' and new_position[0] == 0:
+                        self.promoting = True
+                    elif piece.name == 'pawn' and piece.color == "black" and new_position[0] == 7:
+                        self.promoting = True
                 
                 else:
                     another_piece = self.get_piece_on_square(new_position)
                     if piece.color != another_piece.color: # check if the piece can be captured
-                        self.ordinary_move(piece,prev_position,new_position)
+                        # Capture peice
+                        self.ordinary_move(piece,prev_position,new_position) 
                         self.capture(another_piece)
-                    else:
+
+                        # promotion
+                        if piece.name == 'pawn' and piece.color == 'white' and new_position[0] == 0:
+                            self.promoting = True
+                        elif piece.name == 'pawn' and piece.color == "black" and new_position[0] == 7:
+                            self.promoting = True
+
+                    else: # return original position
                         piece.move_to(self.board.board_position[prev_position[0]][prev_position[1]])
 
             # return original position
@@ -270,6 +234,53 @@ class Chess:
         piece.set_placed(False)
         self.outside_board.set_occupied(outside_pos)
 
+    def promotion(self,screen,promoting_pawn):
+        self.promoting_pawn = promoting_pawn
+        position = promoting_pawn.get_position()
+        col = promoting_pawn.color
+        block_s = promoting_pawn.block_size
+        rect_positions = self.board.draw_promotion_square(screen,position)
+        self.promotion_pieces = [piece.Queen(block_s,col,position = (rect_positions[0][0] + 0.5* block_s,rect_positions[0][1]  + 0.5* block_s)),
+        piece.Rook(block_s,col,position = (rect_positions[1][0]  + 0.5* block_s,rect_positions[1][1]  + 0.5* block_s)),
+        piece.Horse(block_s,col,position =(rect_positions[2][0]  + 0.5* block_s,rect_positions[2][1]  + 0.5* block_s)),
+        piece.Bishop(block_s,col,position = (rect_positions[3][0]  + 0.5* block_s,rect_positions[3][1] + 0.5* block_s))]
+        for p in self.promotion_pieces:
+            rect = p.rect
+            screen.blit(p.image,p.rect)
+
+
+    def promoting_to(self,promoting_piece):
+        promoting_position = self.promoting_pawn.get_position()
+        promoting_square = self.board.get_board_position(promoting_position)
+        for i,p in enumerate(self.pieces):
+            if p.get_position() == promoting_position:
+                print("yes")
+                del self.pieces[i]
+                break
+        self.pieces.append(promoting_piece)
+        promoting_piece.move_to(promoting_position)
+
+        if self.promoting_pawn.color == "white":
+            if promoting_piece.name == "queen":
+                self.board.board_pieces[promoting_square[0]][promoting_square[1]] = 'w_q'
+            elif promoting_piece.name == "horse":
+                self.board.board_pieces[promoting_square[0]][promoting_square[1]] = 'w_h'
+            elif promoting_piece.name == "bishop":
+                self.board.board_pieces[promoting_square[0]][promoting_square[1]] = 'w_b'
+            elif promoting_piece.name == "rook":
+                self.board.board_pieces[promoting_square[0]][promoting_square[1]] = 'w_r'
+        elif self.promoting_pawn.color == "black":
+            if promoting_piece.name == "queen":
+                self.board.board_pieces[promoting_square[0]][promoting_square[1]] = 'bl_q'
+            elif promoting_piece.name == "horse":
+                self.board.board_pieces[promoting_square[0]][promoting_square[1]] = 'bl_h'
+            elif promoting_piece.name == "bishop":
+                self.board.board_pieces[promoting_square[0]][promoting_square[1]] = 'bl_b'
+            elif promoting_piece.name == "rook":
+                self.board.board_pieces[promoting_square[0]][promoting_square[1]] = 'bl_r'
+
+
+
     def castle_move(self,piece,position):
         castle_move = []
         if piece.name == "king" and piece.is_moved == False:
@@ -301,6 +312,9 @@ class Chess:
 
     def set_highlight(self,bool):
         self.highlight = bool
+
+    def set_promoting(self,bool):
+        self.promoting = bool
 
     def update(self,screen):
         self.board.draw_board(screen)

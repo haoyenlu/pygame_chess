@@ -11,7 +11,6 @@ class EventHandler:
         self.clicked_position = None
 
     def initialize(self):
-        self.chess.initialize_pieces_position()
         self.chess.board.print_board_pieces()
 
     def get_event(self):
@@ -31,21 +30,29 @@ class EventHandler:
         self.running = False
 
     def mouse_button_down(self,event):
-        for piece in self.chess.pieces:
-                if piece.rect.collidepoint(event.pos):
-                    piece.set_clicked(True)
-                    self.clicked_position = self.chess.board.get_nearest_position(event.pos)
-                    self.clicked_piece = piece
-                    self.engine.set_clicked_piece_and_position(piece,self.clicked_position)
-                    # highlight legal move
-                    self.chess.set_highlight(True)
-                
-                    break
+        if self.chess.promoting == False: # if not promoting
+            for piece in self.chess.pieces:
+                    if piece.rect.collidepoint(event.pos):
+                        piece.set_clicked(True)
+                        self.clicked_position = self.chess.board.get_nearest_position(event.pos)
+                        self.clicked_piece = piece
+                        self.engine.set_clicked_piece_and_position(piece,self.clicked_position)
+                        # highlight legal move
+                        self.chess.set_highlight(True)
+                    
+                        break
+
 
     def mouse_button_up(self,event):
-        if self.clicked_piece != None:
-            self.clicked_piece.set_clicked(False)
-            self.chess.set_highlight(False)
-            new_position = self.chess.board.get_nearest_position(event.pos)
-            self.chess.move_piece(self.clicked_piece,self.clicked_position,new_position)
-            self.clicked_piece = None
+        if self.chess.promoting == False:
+            if self.clicked_piece != None:
+                self.clicked_piece.set_clicked(False)
+                self.chess.set_highlight(False)
+                new_position = self.chess.board.get_nearest_position(event.pos)
+                self.chess.move_piece(self.clicked_piece,self.clicked_position,new_position)
+        else:
+            for p in self.chess.promotion_pieces:
+                if p.rect.collidepoint(event.pos):
+                    self.chess.promoting_to(p)
+            self.chess.set_promoting(False)
+

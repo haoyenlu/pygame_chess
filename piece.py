@@ -6,7 +6,7 @@ class Piece:
         self.block_size = block_size
         self.color = color
         self.click = False
-        self.is_placed = False
+        self.is_placed = True
         self.is_moved = False
         self.name = name
     
@@ -51,9 +51,10 @@ class Piece:
 
     
 class Pawn(Piece):
-    def __init__(self,block_size,color):
+    def __init__(self,block_size,color,position):
         super().__init__(block_size,color,'pawn')
         self.load_image()
+        self.move_to(position)
 
     def load_image(self):
         if self.color == "white":
@@ -84,11 +85,12 @@ class Pawn(Piece):
 
 
 
+
 class Horse(Piece):
-    def __init__(self,block_size,color):
+    def __init__(self,block_size,color,position):
         super().__init__(block_size,color,'horse')
         self.load_image()
-
+        self.move_to(position)
 
     def load_image(self):
         if self.color == "white":
@@ -103,10 +105,10 @@ class Horse(Piece):
     
 
 class Bishop(Piece):
-    def __init__(self,block_size,color):
+    def __init__(self,block_size,color,position):
         super().__init__(block_size,color,'bishop')
         self.load_image()
-
+        self.move_to(position)
 
     def load_image(self):
         if self.color == "white":
@@ -123,9 +125,10 @@ class Bishop(Piece):
         return legal_move
 
 class Rook(Piece):
-    def __init__(self,block_size,color):
+    def __init__(self,block_size,color,position):
         super().__init__(block_size,color,'rook')
         self.load_image()
+        self.move_to(position)
 
     def load_image(self):
         if self.color == "white":
@@ -143,10 +146,10 @@ class Rook(Piece):
 
 
 class King(Piece):
-    def __init__(self,block_size,color):
+    def __init__(self,block_size,color,position):
         super().__init__(block_size,color,'king')
         self.load_image()
-
+        self.move_to(position)
 
     def load_image(self):
         if self.color == "white":
@@ -160,10 +163,10 @@ class King(Piece):
 
 
 class Queen(Piece):
-    def __init__(self,block_size,color):
+    def __init__(self,block_size,color,position):
         super().__init__(block_size,color,'queen')
         self.load_image()
-
+        self.move_to(position)
 
     def load_image(self):
         if self.color == "white":

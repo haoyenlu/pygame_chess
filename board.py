@@ -1,4 +1,5 @@
 import pygame
+import color
 
 class Board:
     def __init__(self,block_size=30,origin_x = 0,origin_y = 0):
@@ -33,8 +34,8 @@ class Board:
     def draw_board(self,screen):
         for i in range(8):
             for j in range(8):
-                color = (255,255,255) if (i + j) % 2 == 0 else (127,127,127)
-                pygame.draw.rect(self.surface,color,self.board_rect[i][j],0)
+                c = color.WHITE if (i + j) % 2 == 0 else color.GRAY
+                pygame.draw.rect(self.surface,c,self.board_rect[i][j],0)
         screen.blit(self.surface,(self.origin_x,self.origin_y))
 
     def get_nearest_position(self,position): # get nearest board position
@@ -83,7 +84,26 @@ class Board:
     def draw_red_circle(self,screen,positions):
         for pos in positions:
             pygame.draw.circle(screen,(255,0,0),self.board_position[pos[0]][pos[1]],7)
+
+    def draw_promotion_square(self,screen,position):
+        rect_positions = []
+        prev_x = position[0]
+        prev_y = position[1] - self.block_size
+        for i in range(4):
+            c = color.BROWN if i % 2 == 0 else color.LIGHT_BROWN
+            x = prev_x
+            y = prev_y +  self.block_size
+            screen_x,screen_y = screen.get_size()
+            if y > screen_y:
+                x = prev_x + self.block_size
+                y = position[1]
+            rect = pygame.Rect(x,y,self.block_size,self.block_size)
+            pygame.draw.rect(screen,c,rect,0)
+            rect_positions.append((x,y))
+            prev_x = x
+            prev_y = y
     
+        return rect_positions
         
     def print_board_pieces(self):
         print('-'* 60)
