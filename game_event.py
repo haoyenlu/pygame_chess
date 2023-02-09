@@ -50,6 +50,7 @@ class EventHandler:
                 self.chess.set_highlight(False)
                 new_position = self.chess.board.get_nearest_position(event.pos)
                 self.chess.move_piece(self.clicked_piece,self.clicked_position,new_position)
+                self.clicked_piece = None
         else:
             for p in self.chess.promotion_pieces:
                 if p.rect.collidepoint(event.pos):

@@ -1,7 +1,7 @@
 import pygame
 import board
 import piece
-import engine
+import position
 import color
 
 # Pawn - p
@@ -14,15 +14,6 @@ import color
 # Black - bl
 # White - w
 
-
-Initial_Board_Position = [['bl_r','bl_h','bl_b','bl_q','bl_k','bl_b','bl_h','bl_r'],
-['bl_p','bl_p','bl_p','bl_p','bl_p','bl_p','bl_p','bl_p'],
-['/','/','/','/','/','/','/','/'],
-['/','/','/','/','/','/','/','/'],
-['/','/','/','/','/','/','/','/'],
-['/','/','/','/','/','/','/','/'],
-['w_p','w_p','w_p','w_p','w_p','w_p','w_p','w_p'],
-['w_r','w_h','w_b','w_q','w_k','w_b','w_h','w_r']]
 
 
 class Chess:
@@ -49,7 +40,8 @@ class Chess:
     def initialize_pieces_position(self,block_size):
 
         # Board position
-        self.board.board_pieces = Initial_Board_Position
+        self.board.board_pieces = position.PUZZLE_2
+        self.turn = "white"
 
         # Pieces position
         for i in range(8):
