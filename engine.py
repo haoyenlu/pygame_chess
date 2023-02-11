@@ -1,6 +1,3 @@
-import pygame
-
-
 class Engine:
     def __init__(self,chess,screen):
         self.screen = screen

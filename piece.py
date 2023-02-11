@@ -6,7 +6,6 @@ class Piece:
         self.block_size = block_size
         self.color = color
         self.click = False
-        self.is_placed = True
         self.is_moved = False
         self.name = name
     
@@ -29,14 +28,10 @@ class Piece:
 
 
     def drag(self):
-        if self.click == True:
-            self.rect.center = pygame.mouse.get_pos()
+        self.rect.center = pygame.mouse.get_pos()
 
     def move_to(self,position):
         self.rect.center = position
-
-    def set_placed(self,placed):
-        self.is_placed = placed
     
     def set_clicked(self,clicked):
         self.click = clicked
@@ -45,7 +40,8 @@ class Piece:
         self.is_moved = moved
 
     def update(self,screen):
-        self.drag()
+        if self.click == True:
+            self.drag()
         screen.blit(self.image,self.rect)
 
 

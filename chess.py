@@ -40,7 +40,7 @@ class Chess:
     def initialize_pieces_position(self,block_size):
 
         # Board position
-        self.board.board_pieces = position.PUZZLE_2
+        self.board.board_pieces = position.INITIAL_POSITION
         self.turn = "white"
 
         # Pieces position
@@ -82,44 +82,54 @@ class Chess:
                 elif self.board.board_pieces[i][j] == "bl_k": # black king
                     self.pieces.append(piece.King(block_size,"black",(self.board.board_position[i][j])))
 
-    def move_piece(self,piece,prev_position,new_position): # Move pieces
+    def move_piece(self,piece,prev_position,new_position): 
+        # Move pieces to new square
+
         # check if move is legal
-        if piece.is_placed == True:
-            if self.check_if_move_legal(piece,prev_position,new_position) and self.is_turn(piece): 
-                # check if there is another piece on the square
-                if not self.check_if_squared_occupied(new_position):
-                    self.ordinary_move(piece,prev_position,new_position)
-                    # castle
-                    if piece.name == "king" and abs(new_position[1] - prev_position[1]) == 2: 
-                        self.castle(piece,new_position)
-                    
+        if self.check_if_move_legal(piece,prev_position,new_position) and self.is_turn(piece): 
+            # check if there is another piece on the square
+            if not self.check_if_squared_occupied(new_position):
+                self.ordinary_move(piece,prev_position,new_position)
+                # castle
+                if piece.name == "king" and abs(new_position[1] - prev_position[1]) == 2: 
+                    self.castle(piece,new_position)
+                
+                # promotion
+                if piece.name == 'pawn' and piece.color == 'white' and new_position[0] == 0:
+                    self.promoting = True
+                elif piece.name == 'pawn' and piece.color == "black" and new_position[0] == 7:
+                    self.promoting = True
+
+                # update move and history
+                self.moves += 1
+                self.board.history[self.moves] = self.board.board_pieces
+            
+            else:
+                another_piece = self.get_piece_on_square(new_position)
+                if piece.color != another_piece.color: # check if the piece can be captured
+                    # Capture peice
+                    self.ordinary_move(piece,prev_position,new_position) 
+                    self.capture(another_piece)
+
                     # promotion
                     if piece.name == 'pawn' and piece.color == 'white' and new_position[0] == 0:
                         self.promoting = True
                     elif piece.name == 'pawn' and piece.color == "black" and new_position[0] == 7:
                         self.promoting = True
-                
-                else:
-                    another_piece = self.get_piece_on_square(new_position)
-                    if piece.color != another_piece.color: # check if the piece can be captured
-                        # Capture peice
-                        self.ordinary_move(piece,prev_position,new_position) 
-                        self.capture(another_piece)
 
-                        # promotion
-                        if piece.name == 'pawn' and piece.color == 'white' and new_position[0] == 0:
-                            self.promoting = True
-                        elif piece.name == 'pawn' and piece.color == "black" and new_position[0] == 7:
-                            self.promoting = True
+                    # update move and history
+                    self.moves += 1
+                    self.board.history[self.moves] = self.board.board_pieces
 
-                    else: # return original position
-                        piece.move_to(self.board.board_position[prev_position[0]][prev_position[1]])
+                else: # return original position
+                    piece.move_to(self.board.board_position[prev_position[0]][prev_position[1]])
 
-            # return original position
-            else:
-                piece.move_to(self.board.board_position[prev_position[0]][prev_position[1]])
+        # return original position
+        else:
+            piece.move_to(self.board.board_position[prev_position[0]][prev_position[1]])
 
     def ordinary_move(self,piece,prev_position,new_position):
+        # ordinary move
         piece.move_to(self.board.board_position[new_position[0]][new_position[1]])
         self.board.move_piece(prev_position,new_position)
         if not piece.is_moved : piece.set_is_moved(True)
@@ -134,12 +144,14 @@ class Chess:
         return True
     
     def check_if_squared_occupied(self,new_position): 
+        # check if squared is occupied by other pieces
         if self.board.board_pieces[new_position[0]][new_position[1]] == '/':
             return False
 
         return True
 
     def get_piece_on_square(self,position):
+        # get the piece on square
         for p in self.pieces:
             if self.board.get_board_position(p.get_position()) == position:
                 return p 
@@ -147,10 +159,11 @@ class Chess:
         return None
 
     def cal_piece_legal_move(self,piece,position):
+        # calculate legal move
         piece_legal_move = piece.get_legal_move_square()
         piece_legal_move = [(position[0]+move[0],position[1]+move[1]) for move in piece_legal_move]
 
-        # legal capture move
+        # pawn legal capture move
         if piece.name == "pawn":
             capture_squares = piece.get_capture_move_square()
             for square in capture_squares:
@@ -159,7 +172,7 @@ class Chess:
                 if another_piece != None and another_piece.color != piece.color:
                     piece_legal_move.append(pos)
 
-        # legal castle move
+        # king legal castle move
         castle_move = self.castle_move(piece,position)
         for move in castle_move:
             piece_legal_move.append(move)
@@ -218,15 +231,17 @@ class Chess:
 
 
     def capture(self,piece):
+        # capture piece
         if piece.name == "king":
             self.win = "white" if piece.color == "black" else "black"
             print(self.win + " win!")
         outside_pos = self.outside_board.get_first_unoccupied_position()
         piece.move_to(outside_pos)
-        piece.set_placed(False)
+        piece.set_is_moved(True)
         self.outside_board.set_occupied(outside_pos)
 
     def promotion(self,screen,promoting_pawn):
+        # promotion process
         self.promoting_pawn = promoting_pawn
         position = promoting_pawn.get_position()
         col = promoting_pawn.color
@@ -237,21 +252,23 @@ class Chess:
         piece.Horse(block_s,col,position =(rect_positions[2][0]  + 0.5* block_s,rect_positions[2][1]  + 0.5* block_s)),
         piece.Bishop(block_s,col,position = (rect_positions[3][0]  + 0.5* block_s,rect_positions[3][1] + 0.5* block_s))]
         for p in self.promotion_pieces:
-            rect = p.rect
             screen.blit(p.image,p.rect)
 
 
     def promoting_to(self,promoting_piece):
+        # pawn promoting to (promoting_piece)
         promoting_position = self.promoting_pawn.get_position()
         promoting_square = self.board.get_board_position(promoting_position)
+        # delete promoting pawn
         for i,p in enumerate(self.pieces):
             if p.get_position() == promoting_position:
-                print("yes")
                 del self.pieces[i]
                 break
+        
         self.pieces.append(promoting_piece)
         promoting_piece.move_to(promoting_position)
 
+        # update board pieces
         if self.promoting_pawn.color == "white":
             if promoting_piece.name == "queen":
                 self.board.board_pieces[promoting_square[0]][promoting_square[1]] = 'w_q'
@@ -274,6 +291,7 @@ class Chess:
 
 
     def castle_move(self,piece,position):
+        # return castle move
         castle_move = []
         if piece.name == "king" and piece.is_moved == False:
             rook_1 = self.get_piece_on_square((position[0],position[1]+3))
@@ -287,6 +305,7 @@ class Chess:
                 
 
     def castle(self,piece,position):
+        # castle 
         if position[1] == 6: # kingside
             rook = self.get_piece_on_square((position[0],7)) # kingside rook
             rook.move_to(self.board.board_position[position[0]][5])
@@ -319,8 +338,7 @@ class Chess:
 
     def show_highlight(self,screen,piece,position):
         # highlight legal move position
-        if piece.is_placed == True:
-            piece_legal_move = self.cal_piece_legal_move(piece,position)
-            self.board.draw_red_circle(screen,piece_legal_move)
+        piece_legal_move = self.cal_piece_legal_move(piece,position)
+        self.board.draw_red_circle(screen,piece_legal_move)
 
         

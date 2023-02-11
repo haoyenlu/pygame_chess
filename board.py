@@ -10,11 +10,12 @@ class Board:
         self.board_rect = [[0] * 8 for i in range(8)] # board pygame rect
         self.board_position = [[0] * 8 for i in range(8)] # pixel vector of every grid
         self.board_pieces = [['/'] * 8 for i in range(8)] # pieces
-        self.board_occupied = [[0] * 8 for i in range(8)] # 0 if not occupied - 1 if occupied
         self.initialize_position()
         self.initialize_board_rect()
+        self.history = {}
 
     def initialize_position(self):
+        # initialize pixel position
         for i in range(8):
             for j in range(8):
                 x = self.origin_x + (j + 0.5) * self.block_size
@@ -23,6 +24,7 @@ class Board:
                 self.board_position[i][j] = (x,y)
 
     def initialize_board_rect(self):
+        # initialize board rect
         for i in range(8):
             for j in range(8):
                 x = i * self.block_size
@@ -32,14 +34,15 @@ class Board:
                 self.board_rect[i][j] = rect
 
     def draw_board(self,screen):
+        # draw board rect
         for i in range(8):
             for j in range(8):
                 c = color.WHITE if (i + j) % 2 == 0 else color.GRAY
                 pygame.draw.rect(self.surface,c,self.board_rect[i][j],0)
         screen.blit(self.surface,(self.origin_x,self.origin_y))
 
-    def get_nearest_position(self,position): # get nearest board position
-        
+    def get_nearest_position(self,position):
+        # get nearest board pixel position
         def get_distance(a,b):
             distance = 0
             for x,y in zip(a,b):
@@ -59,7 +62,8 @@ class Board:
 
         return nearest_board_position  # return board position
 
-    def get_board_position(self,position):  # get board position by pixel vector
+    def get_board_position(self,position):  
+        # get board square by pixel position
         board_position = (-1,-1)
 
         for i in range(8):
@@ -70,30 +74,26 @@ class Board:
         return board_position
 
     def move_piece(self,prev_position,new_position):
+        # move piece on board piece
         self.board_pieces[new_position[0]][new_position[1]] = self.board_pieces[prev_position[0]][prev_position[1]]
         self.board_pieces[prev_position[0]][prev_position[1]] = '/'
         self.print_board_pieces()
-    
-    def find_unoccupied_piece_square(self,piece):
-        for i in range(8):
-            for j in range(8):
-                if self.board_pieces[i][j] == piece and self.board_occupied[i][j] == 0:
-                    self.board_occupied[i][j] = 1
-                    return (i,j)
 
     def draw_red_circle(self,screen,positions):
+        # draw red circle on board for highlight
         for pos in positions:
             pygame.draw.circle(screen,(255,0,0),self.board_position[pos[0]][pos[1]],7)
 
     def draw_promotion_square(self,screen,position):
+        # draw promotion square
         rect_positions = []
         prev_x = position[0]
         prev_y = position[1] - self.block_size
+        screen_x,screen_y = screen.get_size()
         for i in range(4):
             c = color.BROWN if i % 2 == 0 else color.LIGHT_BROWN
             x = prev_x
             y = prev_y +  self.block_size
-            screen_x,screen_y = screen.get_size()
             if y > screen_y:
                 x = prev_x + self.block_size
                 y = position[1]
@@ -106,11 +106,13 @@ class Board:
         return rect_positions
         
     def print_board_pieces(self):
+        # print board pieces on console
         print('-'* 60)
         print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in self.board_pieces]))
         print('-'* 60)
     
     def print_board_position(self):
+        # print board pixel position on console
         print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in self.board_position]))
 
         

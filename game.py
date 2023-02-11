@@ -44,7 +44,10 @@ while event_handler.running:
     if chess.win == None:
         turnmsg = font.render(f"{chess.turn} turn !",True,(255,255,255))
         turnmsg_rect = turnmsg.get_rect(center=(origin_x + 11 * block_size,origin_y + 6 * block_size))
+        movemsg = font.render(f"move {chess.moves}",True,(255,255,255))
+        movemsg_rect = movemsg.get_rect(center=(origin_x + 12 * block_size,origin_y + 7 * block_size))
         screen.blit(turnmsg,turnmsg_rect)
+        screen.blit(movemsg,movemsg_rect)
     else:
         winmsg = font.render(f"{chess.win} win !",True,(255,255,255))
         winmsg_rect = winmsg.get_rect(center=(origin_x + 11 * block_size,origin_y + 6 * block_size))

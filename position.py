@@ -8,7 +8,7 @@
 # Black - bl
 # White - w
 
-INITIONAL_POSITION = [
+INITIAL_POSITION = [
 ['bl_r','bl_h','bl_b','bl_q','bl_k','bl_b','bl_h','bl_r'],
 ['bl_p','bl_p','bl_p','bl_p','bl_p','bl_p','bl_p','bl_p'],
 ['/','/','/','/','/','/','/','/'],
