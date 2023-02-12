@@ -12,7 +12,6 @@ class Board:
         self.board_pieces = [['/'] * 8 for i in range(8)] # pieces
         self.initialize_position()
         self.initialize_board_rect()
-        self.history = {}
 
     def initialize_position(self):
         # initialize pixel position
@@ -77,7 +76,6 @@ class Board:
         # move piece on board piece
         self.board_pieces[new_position[0]][new_position[1]] = self.board_pieces[prev_position[0]][prev_position[1]]
         self.board_pieces[prev_position[0]][prev_position[1]] = '/'
-        self.print_board_pieces()
 
     def draw_red_circle(self,screen,positions):
         # draw red circle on board for highlight

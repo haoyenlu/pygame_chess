@@ -9,8 +9,6 @@ class EventHandler:
         self.clicked_piece = None
         self.clicked_position = None
 
-    def initialize(self):
-        self.chess.board.print_board_pieces()
 
     def get_event(self):
         for event in pygame.event.get():

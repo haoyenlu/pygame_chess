@@ -8,6 +8,7 @@ class Piece:
         self.click = False
         self.is_moved = False
         self.name = name
+        self.legal_move = []
     
     def __str__(self):
         return f"{self.color} {self.name} at {self.rect.center}"
@@ -39,6 +40,12 @@ class Piece:
     def set_is_moved(self,moved):
         self.is_moved = moved
 
+    def set_legal_move(self,legal_move):
+        self.legal_move = legal_move
+    
+    def add_legal_move(self,legal_move):
+        self.legal_move.append(legal_move)
+
     def update(self,screen):
         if self.click == True:
             self.drag()
@@ -51,6 +58,8 @@ class Pawn(Piece):
         super().__init__(block_size,color,'pawn')
         self.load_image()
         self.move_to(position)
+        self.can_en_passant_left = False
+        self.can_en_passant_right = False
 
     def load_image(self):
         if self.color == "white":
@@ -78,6 +87,12 @@ class Pawn(Piece):
             capture_move = [(1,1),(1,-1)]  # first is row, second is column -> same column different row       
 
         return capture_move
+
+    def set_en_passant(self,direction):
+        if direction == "left":
+            self.can_en_passant_left = True
+        elif direction == "right":
+            self.can_en_passant_right = True
 
 
 

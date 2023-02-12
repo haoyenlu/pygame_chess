@@ -29,7 +29,6 @@ engine = engine.Engine(chess,screen)
 
 event_handler = game_event.EventHandler(screen,chess,engine)
 
-event_handler.initialize()
 
 # message
 font = pygame.font.Font('fonts/Pacifico.ttf',50)
