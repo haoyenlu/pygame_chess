@@ -4,15 +4,14 @@ import piece
 import position
 import color
 
-# Pawn - p
-# Horse - h
-# Bishop - b
-# Rook - r
-# Queen - q
-# King - k
-
-# Black - bl
-# White - w
+SHORT_PIECE_NAME = {"pawn":"p",
+"horse":"h",
+"bishop":"b",
+"rook":"r",
+"queen":"q",
+"king":"k",
+"black":"bl",
+"white":"w"}
 
 
 
@@ -90,7 +89,7 @@ class Chess:
         # Move pieces to new square
 
         # check if move is legal
-        if self.check_if_move_legal(piece,prev_position,new_position) and self.is_turn(piece): 
+        if self.check_if_move_legal(piece,new_position) and self.is_turn(piece): 
             # check if there is another piece on the square
             if not self.check_if_squared_occupied(new_position): # no piece
                 self.ordinary_move(piece,prev_position,new_position)
@@ -100,16 +99,7 @@ class Chess:
 
                 # en passant capture
                 if piece.name == "pawn" and abs(new_position[0]-prev_position[0]) == 1 and abs(new_position[1] - prev_position[1]) == 1:
-                    if piece.color == "white" :
-                        if self.board.board_pieces[new_position[0] + 1][new_position[1]] == "bl_p":
-                            black_pawn = self.get_piece_on_square((new_position[0] + 1,new_position[1]))
-                            self.capture(black_pawn)
-                            self.board.board_pieces[new_position[0] + 1][new_position[1]] = '/'
-                    elif piece.color == "black" :
-                        if self.board.board_pieces[new_position[0] - 1][new_position[1]] == "w_p":
-                            white_pawn = self.get_piece_on_square((new_position[0] - 1,new_position[1]))
-                            self.capture(white_pawn)
-                            self.board.board_pieces[new_position[0]-1][new_position[1]] = '/'
+                    self.en_passant_capture(piece,new_position)
                     
                 
                 # promotion
@@ -120,20 +110,21 @@ class Chess:
                 
                 # calculate legal move for every piece
                 self.cal_all_piece_legal_move()
+
                 # add en passant square 
                 if piece.name == "pawn" and abs(new_position[0] - prev_position[0]) == 2:
                     if piece.color == "white":
-                        if self.board.board_pieces[new_position[0]][new_position[1]-1] == "bl_p":
+                        if new_position[1] - 1 >= 0 and self.board.board_pieces[new_position[0]][new_position[1]-1] == "bl_p":
                             black_pawn = self.get_piece_on_square((new_position[0]+1,new_position[1]-1))
                             black_pawn.add_legal_move((new_position[0]+1,new_position[1]+1))
-                        if self.board.board_pieces[new_position[0]][new_position[1]+1] == "bl_p":
+                        if new_position[1] + 1 <= 7 and self.board.board_pieces[new_position[0]][new_position[1]+1] == "bl_p":
                             black_pawn = self.get_piece_on_square((new_position[0],new_position[1]+1))
                             black_pawn.add_legal_move((new_position[0]+1,new_position[1]))
                     elif piece.color == "black":
-                        if self.board.board_pieces[new_position[0]][new_position[1]-1] == "w_p":
+                        if new_position[1] - 1 >= 0 and self.board.board_pieces[new_position[0]][new_position[1]-1] == "w_p":
                             white_pawn = self.get_piece_on_square((new_position[0],new_position[1]-1))
                             white_pawn.add_legal_move((new_position[0]-1,new_position[1]))
-                        if self.board.board_pieces[new_position[0]][new_position[1]+1] == "w_p":
+                        if new_position[1] + 1 <= 7 and self.board.board_pieces[new_position[0]][new_position[1]+1] == "w_p":
                             white_pawn = self.get_piece_on_square((new_position[0],new_position[1]+1))
                             white_pawn.add_legal_move((new_position[0]-1,new_position[1]))
                 
@@ -159,9 +150,8 @@ class Chess:
 
                     # calculate all legal move for every piece
                     self.cal_all_piece_legal_move()
-                    # update move and history
+                    # update move 
                     self.moves += 1
-
                     # print moves and piece
                     print(f"move {self.moves}")
                     self.board.print_board_pieces()
@@ -179,11 +169,21 @@ class Chess:
         self.board.move_piece(prev_position,new_position)
         if not piece.is_moved : piece.set_is_moved(True)
         self.turn = "white" if piece.color == "black" else "black"
+    
+    def en_passant_capture(self,piece,new_position):
+        if piece.color == "white" :
+            if self.board.board_pieces[new_position[0] + 1][new_position[1]] == "bl_p":
+                black_pawn = self.get_piece_on_square((new_position[0] + 1,new_position[1]))
+                self.capture(black_pawn)
+                self.board.board_pieces[new_position[0] + 1][new_position[1]] = '/'
+        elif piece.color == "black" :
+            if self.board.board_pieces[new_position[0] - 1][new_position[1]] == "w_p":
+                white_pawn = self.get_piece_on_square((new_position[0] - 1,new_position[1]))
+                self.capture(white_pawn)
+                self.board.board_pieces[new_position[0]-1][new_position[1]] = '/'
 
-    def check_if_move_legal(self,piece,prev_position,new_position):
+    def check_if_move_legal(self,piece,new_position):
         # check legal move
-        if len(piece.legal_move) == 0:
-            piece.set_legal_move(self.cal_piece_legal_move(piece,prev_position))
         if new_position not in piece.legal_move:
             return False
             
@@ -207,13 +207,17 @@ class Chess:
     def cal_all_piece_legal_move(self):
         for p in self.pieces:
             p.set_legal_move(self.cal_piece_legal_move(p,self.board.get_board_position(p.get_position())))
+        for p in self.pieces:
+            if p.name == "king":
+                p.set_legal_move(self.cal_king_legal_move(p))
+        
 
     def cal_piece_legal_move(self,piece,position):
         # calculate legal move
         piece_legal_move = piece.get_legal_move_square()
         piece_legal_move = [(position[0]+move[0],position[1]+move[1]) for move in piece_legal_move]
 
-        # pawn legal capture move and en passant
+        # pawn legal capture move 
         if piece.name == "pawn":
             # capture move
             capture_squares = piece.get_capture_move_square()
@@ -279,10 +283,20 @@ class Chess:
                                 block_square.append((move[0] + i,move[1] + i))
 
         piece_legal_move_inbound = [move for move in piece_legal_move if move not in block_square]
-        piece.set_legal_move(piece_legal_move_inbound)
+    
 
         return piece_legal_move_inbound
 
+    def cal_king_legal_move(self,king):
+        # calculate king legal move that won't end in checkmate
+        checkmate_square = []
+        for move in king.legal_move:
+            for another_p in self.pieces:
+                if another_p.color != king.color and move in another_p.legal_move:
+                    checkmate_square.append(move)
+
+        return [move for move in king.legal_move if move not in checkmate_square]
+    
 
 
     def capture(self,piece):
@@ -292,7 +306,6 @@ class Chess:
             print(self.win + " win!")
         outside_pos = self.outside_board.get_first_unoccupied_position()
         piece.move_to(outside_pos)
-        piece.set_is_moved(True)
         self.outside_board.set_occupied(outside_pos)
 
     def promotion(self,screen,promoting_pawn):
@@ -324,25 +337,7 @@ class Chess:
         promoting_piece.move_to(promoting_position)
 
         # update board pieces
-        if self.promoting_pawn.color == "white":
-            if promoting_piece.name == "queen":
-                self.board.board_pieces[promoting_square[0]][promoting_square[1]] = 'w_q'
-            elif promoting_piece.name == "horse":
-                self.board.board_pieces[promoting_square[0]][promoting_square[1]] = 'w_h'
-            elif promoting_piece.name == "bishop":
-                self.board.board_pieces[promoting_square[0]][promoting_square[1]] = 'w_b'
-            elif promoting_piece.name == "rook":
-                self.board.board_pieces[promoting_square[0]][promoting_square[1]] = 'w_r'
-        elif self.promoting_pawn.color == "black":
-            if promoting_piece.name == "queen":
-                self.board.board_pieces[promoting_square[0]][promoting_square[1]] = 'bl_q'
-            elif promoting_piece.name == "horse":
-                self.board.board_pieces[promoting_square[0]][promoting_square[1]] = 'bl_h'
-            elif promoting_piece.name == "bishop":
-                self.board.board_pieces[promoting_square[0]][promoting_square[1]] = 'bl_b'
-            elif promoting_piece.name == "rook":
-                self.board.board_pieces[promoting_square[0]][promoting_square[1]] = 'bl_r'
-
+        self.board.board_pieces[promoting_square[0]][promoting_square[1]] = f"{SHORT_PIECE_NAME[promoting_piece.color]}_{SHORT_PIECE_NAME[promoting_piece.name]}"
 
 
     def castle_move(self,piece,position):
