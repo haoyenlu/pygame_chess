@@ -24,7 +24,7 @@ origin_y = 50
 
 chess = chess.Chess()
 chess.instantiate_board(block_size,origin_x,origin_y)
-chess.instantiate_outside_board(origin_x + 8.5 * block_size,origin_y,block_size,5,5,(0,200,200,0.5))
+chess.instantiate_outside_board(origin_x + 9 * block_size,origin_y,block_size,5,5,(0,200,200,0.5))
 chess.initialize_pieces_position(block_size)
 
 engine = engine.Engine(chess,screen)

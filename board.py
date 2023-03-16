@@ -6,12 +6,13 @@ class Board:
         self.block_size = block_size
         self.origin_x = origin_x
         self.origin_y = origin_y
-        self.surface = pygame.Surface((block_size*8,block_size*8))
+        self.surface = pygame.Surface((block_size*9,block_size*9))
         self.board_rect = [[0] * 8 for i in range(8)] # board pygame rect
         self.board_position = [[0] * 8 for i in range(8)] # pixel vector of every grid
         self.board_pieces = [['/'] * 8 for i in range(8)] # pieces
         self.initialize_position()
         self.initialize_board_rect()
+        self.font = pygame.font.SysFont('arial',int(self.block_size/2))
 
     def initialize_position(self):
         # initialize pixel position
@@ -38,6 +39,14 @@ class Board:
             for j in range(8):
                 c = color.WHITE if (i + j) % 2 == 0 else color.GRAY
                 pygame.draw.rect(self.surface,c,self.board_rect[i][j],0)
+        # draw board number 
+        for i in range(8):
+            number_block = self.font.render(str(i+1),True,(255,255,255))
+            number_rect = number_block.get_rect(center=((i+0.5) * self.block_size,(8.3) * self.block_size))
+            self.surface.blit(number_block,number_rect)
+            alpha_block = self.font.render(chr(i+ord('A')),True,(255,255,255))
+            alpha_rect = alpha_block.get_rect(center=((8.3) * self.block_size,(i+0.5) * self.block_size))
+            self.surface.blit(alpha_block,alpha_rect)
         screen.blit(self.surface,(self.origin_x,self.origin_y))
 
     def get_nearest_position(self,position):

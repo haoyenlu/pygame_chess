@@ -89,7 +89,7 @@ class Chess:
         # Move pieces to new square
 
         # check if move is legal
-        if self.check_if_move_legal(piece,new_position) and self.is_turn(piece): 
+        if new_position in piece.legal_move and piece.color == self.turn: 
             # check if there is another piece on the square
             if not self.check_if_squared_occupied(new_position): # no piece
                 self.ordinary_move(piece,prev_position,new_position)
@@ -211,6 +211,7 @@ class Chess:
             if p.name == "king":
                 p.set_legal_move(self.cal_king_legal_move(p))
         
+        
 
     def cal_piece_legal_move(self,piece,position):
         # calculate legal move
@@ -296,7 +297,7 @@ class Chess:
                     checkmate_square.append(move)
 
         return [move for move in king.legal_move if move not in checkmate_square]
-    
+
 
 
     def capture(self,piece):
